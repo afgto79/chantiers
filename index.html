@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Chantiers</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Statut des projets de programmation — afgto79">
+<meta name="theme-color" content="#C05E2C">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --ground:#F6F4EE; --surface:#FFFFFF; --surface-2:#EFECE1;
+    --ink:#1C1A15; --ink-muted:#716B5A; --ink-faint:#9B9484;
+    --accent:#C05E2C; --line:#E6E2D6;
+    --ok:#3F7D57; --ok-bg:#E4EFE6;
+    --warn:#B8822C; --warn-bg:#F3EADA;
+    --stable:#35708F; --stable-bg:#E3EBEF;
+    --stop:#A24B42; --stop-bg:#F1E1DE;
+    --draft:#8A8474; --draft-bg:#EAE7DD;
+    --shadow: 0 1px 2px rgba(28,26,21,0.04), 0 6px 16px -8px rgba(28,26,21,0.10);
+    --radius: 10px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#16140F; --surface:#1F1C15; --surface-2:#262218;
+      --ink:#F3EFE3; --ink-muted:#A79F8A; --ink-faint:#79725F;
+      --accent:#E4914F; --line:#332D20;
+      --ok:#7FBB93; --ok-bg:#22301F;
+      --warn:#E0B15C; --warn-bg:#332A16;
+      --stable:#8CB9D2; --stable-bg:#1C2A31;
+      --stop:#E19388; --stop-bg:#33211D;
+      --draft:#B3AB97; --draft-bg:#2A2619;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 20px -10px rgba(0,0,0,0.5);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#16140F; --surface:#1F1C15; --surface-2:#262218;
+    --ink:#F3EFE3; --ink-muted:#A79F8A; --ink-faint:#79725F;
+    --accent:#E4914F; --line:#332D20;
+    --ok:#7FBB93; --ok-bg:#22301F;
+    --warn:#E0B15C; --warn-bg:#332A16;
+    --stable:#8CB9D2; --stable-bg:#1C2A31;
+    --stop:#E19388; --stop-bg:#33211D;
+    --draft:#B3AB97; --draft-bg:#2A2619;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 20px -10px rgba(0,0,0,0.5);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{ background:var(--ground); color:var(--ink); font-family:"IBM Plex Sans", ui-sans-serif, system-ui, sans-serif; -webkit-font-smoothing:antialiased; }
+  .mono{ font-family:"IBM Plex Mono", ui-monospace, "SF Mono", monospace; font-variant-numeric: tabular-nums; }
+  button{ font-family:inherit; }
+
+  .page{ max-width: 920px; margin: 0 auto; padding: 24px 20px 80px; }
+
+  header.bar{
+    display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between;
+    gap: 10px 24px; padding-bottom: 18px; border-bottom: 1px solid var(--line); margin-bottom: 20px;
+  }
+  .brand{ display:flex; align-items:baseline; gap:12px; }
+  .brand h1{ font-family:"Fraunces", Georgia, serif; font-weight:600; font-optical-sizing:auto; font-size: 30px; margin:0; letter-spacing: -0.01em; }
+  .brand .tag{ color:var(--ink-muted); font-size:14px; }
+
+  .headctrls{ display:flex; align-items:center; gap:14px; }
+  .sync{ display:flex; align-items:center; gap:8px; color:var(--ink-faint); font-size:12.5px; }
+  .pulse{ width:7px;height:7px;border-radius:50%; background:var(--ok); animation: pulse 2.4s ease-out infinite; }
+  @media (prefers-reduced-motion: reduce){ .pulse{ animation:none; } }
+  @keyframes pulse{
+    0%{ box-shadow:0 0 0 0 color-mix(in srgb, var(--ok) 45%, transparent);}
+    70%{ box-shadow:0 0 0 7px color-mix(in srgb, var(--ok) 0%, transparent);}
+    100%{ box-shadow:0 0 0 0 color-mix(in srgb, var(--ok) 0%, transparent);}
+  }
+  .iconbtn{
+    border:1px solid var(--line); background:var(--surface); color:var(--ink-muted);
+    width:30px; height:30px; border-radius:8px; display:flex; align-items:center; justify-content:center;
+    cursor:pointer; transition: border-color .15s ease, color .15s ease;
+  }
+  .iconbtn:hover{ border-color:var(--accent); color:var(--ink); }
+  .iconbtn:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+  .iconbtn svg{ width:15px; height:15px; }
+
+  .filters{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom: 26px; }
+  .chip{
+    font-family:"IBM Plex Mono", monospace; font-size:12.5px; border:1px solid var(--line);
+    background:var(--surface); color:var(--ink-muted); padding:7px 12px; border-radius:999px;
+    cursor:pointer; display:flex; align-items:center; gap:7px; transition: border-color .15s ease, color .15s ease, background .15s ease;
+  }
+  .chip:hover{ border-color: var(--accent); color:var(--ink); }
+  .chip:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+  .chip .n{ color:var(--ink-faint); }
+  .chip[aria-pressed="true"]{ background:var(--ink); color:var(--ground); border-color:var(--ink); }
+  .chip[aria-pressed="true"] .n{ color: color-mix(in srgb, var(--ground) 65%, transparent); }
+  .chip .dot{ width:7px;height:7px;border-radius:50%; flex:none; }
+
+  .group{ margin-bottom: 30px; }
+  .group[hidden]{ display:none; }
+  .group h2{
+    font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; font-weight:600;
+    color: var(--ink-muted); margin: 0 0 12px; display:flex; align-items:center; gap:9px;
+  }
+  .group h2 .dot{ width:8px;height:8px;border-radius:50%; }
+  .group h2 .count{ color:var(--ink-faint); font-weight:400; font-family:"IBM Plex Mono", monospace; text-transform:none; letter-spacing:0; }
+
+  .grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+
+  .card{
+    background:var(--surface); border:1px solid var(--line); border-radius: var(--radius);
+    padding: 15px 16px 14px; box-shadow: var(--shadow); display:flex; flex-direction:column; gap:9px;
+    transition: border-color .15s ease;
+  }
+  .card:hover{ border-color: var(--accent); }
+  .card .top{ display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
+  .card h3{ font-size:15.5px; font-weight:600; margin:0; line-height:1.3; }
+  .card h3 a{ color:inherit; text-decoration:none; }
+  .card h3 a:hover{ text-decoration:underline; text-decoration-color:var(--accent); }
+  .card .desc{ font-size:13px; color:var(--ink-muted); line-height:1.5; margin:0; }
+  .card .desc.empty{ font-style:italic; color:var(--ink-faint); }
+
+  .card .meta{
+    margin-top:auto; padding-top:9px; border-top:1px dashed var(--line);
+    display:flex; align-items:center; justify-content:space-between; font-size:11.5px; color:var(--ink-faint);
+  }
+  .card .meta .commits{ display:flex; gap:5px; align-items:baseline; }
+  .card .meta .commits b{ color:var(--ink-muted); font-weight:500; }
+
+  .tags{ display:flex; flex-wrap:wrap; gap:5px; }
+  .tags span{ font-family:"IBM Plex Mono", monospace; font-size:10.5px; color:var(--ink-muted); background:var(--surface-2); border-radius:5px; padding:2px 6px; }
+
+  .status-select{
+    flex:none; font-family:"IBM Plex Mono", monospace; font-size:10.5px; font-weight:500;
+    padding:4px 22px 4px 9px; border-radius:999px; border:1px solid transparent; cursor:pointer;
+    appearance:none; -webkit-appearance:none;
+    background-repeat:no-repeat; background-position:right 8px center; background-size:9px;
+  }
+  .status-select:hover{ border-color: currentColor; }
+  .status-select:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+
+  .note{ margin-top: 36px; padding-top: 18px; border-top:1px solid var(--line); font-size:12.5px; color:var(--ink-faint); line-height:1.6; }
+  .note code{ font-family:"IBM Plex Mono", monospace; background:var(--surface-2); padding:1px 5px; border-radius:4px; color:var(--ink-muted); }
+
+  /* settings panel */
+  .overlay{
+    position:fixed; inset:0; background:color-mix(in srgb, var(--ink) 40%, transparent);
+    display:flex; align-items:center; justify-content:center; padding:20px; z-index:20;
+  }
+  .overlay[hidden]{ display:none; }
+  .panel{
+    background:var(--surface); border:1px solid var(--line); border-radius:12px; box-shadow:var(--shadow);
+    max-width:420px; width:100%; padding:20px 22px 22px;
+  }
+  .panel h2{ font-size:16px; margin:0 0 6px; font-family:"IBM Plex Sans"; }
+  .panel p{ font-size:12.5px; color:var(--ink-muted); line-height:1.55; margin: 0 0 14px; }
+  .panel label{ font-size:12px; color:var(--ink-muted); display:block; margin-bottom:5px; }
+  .panel input[type="password"], .panel input[type="text"]{
+    width:100%; font-family:"IBM Plex Mono", monospace; font-size:12.5px; padding:9px 10px;
+    border:1px solid var(--line); border-radius:7px; background:var(--surface-2); color:var(--ink);
+    margin-bottom:14px;
+  }
+  .panel .row{ display:flex; gap:8px; justify-content:flex-end; }
+  .btn{ font-size:12.5px; padding:8px 14px; border-radius:7px; border:1px solid var(--line); background:var(--surface); color:var(--ink-muted); cursor:pointer; }
+  .btn:hover{ border-color:var(--accent); color:var(--ink); }
+  .btn.primary{ background:var(--accent); border-color:var(--accent); color:#fff; }
+  .btn.primary:hover{ opacity:.92; }
+  .panel .status-line{ font-size:11.5px; margin-bottom:12px; display:flex; align-items:center; gap:6px; }
+  .panel .status-line .dot{ width:7px;height:7px;border-radius:50%; }
+
+  /* toast */
+  #toast{
+    position:fixed; left:50%; bottom:22px; transform:translate(-50%, 12px);
+    background:var(--ink); color:var(--ground); font-size:12.5px; padding:9px 16px; border-radius:999px;
+    opacity:0; pointer-events:none; transition: opacity .2s ease, transform .2s ease; z-index:30;
+    box-shadow: var(--shadow);
+  }
+  #toast.show{ opacity:1; transform:translate(-50%, 0); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="bar">
+    <div class="brand">
+      <h1>Chantiers</h1>
+      <span class="tag">statut des projets — afgto79</span>
+    </div>
+    <div class="headctrls">
+      <div class="sync"><span class="pulse" aria-hidden="true"></span> synchronisé <span class="mono" id="syncTime">—</span></div>
+      <button class="iconbtn" id="refreshBtn" title="Recharger projects.json" aria-label="Recharger">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 4v5h-5"/></svg>
+      </button>
+      <button class="iconbtn" id="settingsBtn" title="Réglages (token GitHub)" aria-label="Réglages">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.6-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.6V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.6 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <nav class="filters" id="filters" aria-label="Filtrer par statut"></nav>
+
+  <main id="groups"></main>
+
+  <p class="note">
+    Le statut se change directement sur chaque carte. Avec un token enregistré (⚙️ Réglages), le changement est écrit dans
+    <code>projects.json</code> sur GitHub. Sans token, le changement reste local à cet onglet.
+    "Dernière activité" et "nb de commits" sont recalculés automatiquement chaque jour par une Action GitHub.
+  </p>
+
+</div>
+
+<div class="overlay" id="overlay" hidden>
+  <div class="panel">
+    <h2>Réglages</h2>
+    <p>
+      Colle ici un <strong>token GitHub à portée réduite</strong> (fine-grained, dépôt <span class="mono">afgto79/chantiers</span> uniquement,
+      permission "Contents: Read and write"). Il est stocké seulement dans ce navigateur (localStorage) et n'est jamais envoyé ailleurs
+      qu'à <span class="mono">api.github.com</span>.
+    </p>
+    <div class="status-line" id="tokenStatus"></div>
+    <label for="tokenInput">Token GitHub</label>
+    <input type="password" id="tokenInput" placeholder="github_pat_…" autocomplete="off">
+    <div class="row">
+      <button class="btn" id="clearTokenBtn">Supprimer</button>
+      <button class="btn primary" id="saveTokenBtn">Enregistrer</button>
+      <button class="btn" id="closeSettingsBtn">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+  const REPO = "afgto79/chantiers";
+  const FILE_PATH = "projects.json";
+  const TOKEN_KEY = "chantiers_gh_token";
+
+  const STATUS = {
+    cours:     { label:"En cours",  var:"--ok",     bg:"--ok-bg" },
+    pause:     { label:"En pause",  var:"--warn",   bg:"--warn-bg" },
+    terminee:  { label:"Terminé",   var:"--stable", bg:"--stable-bg" },
+    abandonne: { label:"Abandonné", var:"--stop",   bg:"--stop-bg" },
+    brouillon: { label:"Brouillon", var:"--draft",  bg:"--draft-bg" },
+  };
+  const ORDER = ["cours","pause","terminee","abandonne","brouillon"];
+
+  let projects = [];
+  let currentSha = null;
+  let active = "tous";
+
+  const filtersEl = document.getElementById("filters");
+  const groupsEl = document.getElementById("groups");
+  const toastEl = document.getElementById("toast");
+
+  function toast(msg, ms=2600){
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    clearTimeout(toast._t);
+    toast._t = setTimeout(()=> toastEl.classList.remove("show"), ms);
+  }
+
+  function relDate(iso){
+    const d = new Date(iso + "T00:00:00");
+    const now = new Date();
+    const days = Math.round((now - d) / 86400000);
+    if(days <= 0) return "aujourd'hui";
+    if(days === 1) return "hier";
+    if(days < 30) return days + " j";
+    if(days < 365){ const m = Math.round(days/30.4); return m + " mois"; }
+    const y = Math.round(days/365); return y + (y>1?" ans":" an");
+  }
+
+  function counts(){
+    const c = { tous: projects.length };
+    ORDER.forEach(s => c[s] = projects.filter(p=>p.status===s).length);
+    return c;
+  }
+
+  function renderFilters(){
+    const c = counts();
+    const chips = [{key:"tous", label:"Tous", var:null}].concat(ORDER.map(k => ({key:k, label:STATUS[k].label, var:STATUS[k].var})));
+    filtersEl.innerHTML = chips.map(ch => `
+      <button class="chip" data-key="${ch.key}" aria-pressed="${ch.key===active}">
+        ${ch.var ? `<span class="dot" style="background:var(${ch.var})"></span>` : ""}
+        ${ch.label} <span class="n">${c[ch.key] ?? 0}</span>
+      </button>
+    `).join("");
+    filtersEl.querySelectorAll(".chip").forEach(btn=>{
+      btn.addEventListener("click", ()=>{ active = btn.dataset.key; renderAll(); });
+    });
+  }
+
+  function statusBg(varName, bgVar){
+    return `color:var(${varName});background:var(${bgVar})`;
+  }
+
+  function renderGroups(){
+    groupsEl.innerHTML = ORDER.map(key=>{
+      const items = projects.filter(p=>p.status===key);
+      const visible = active==="tous" || active===key;
+      if(!visible) return "";
+      if(items.length===0 && active!=="tous") return "";
+      const s = STATUS[key];
+      return `
+        <section class="group" ${items.length===0?"hidden":""}>
+          <h2><span class="dot" style="background:var(${s.var})"></span>${s.label} <span class="count">${items.length}</span></h2>
+          <div class="grid">
+            ${items.map(p=>`
+              <div class="card" data-id="${p.id}">
+                <div class="top">
+                  <h3><a href="https://github.com/${p.repo}" target="_blank" rel="noopener">${p.name}</a></h3>
+                  <select class="status-select" data-id="${p.id}" style="${statusBg('--'+'x','--'+'x')}">
+                    ${ORDER.map(k=>`<option value="${k}" ${k===p.status?"selected":""}>${STATUS[k].label}</option>`).join("")}
+                  </select>
+                </div>
+                <p class="desc ${p.desc ? "" : "empty"}">${p.desc || "Pas encore de description."}</p>
+                <div class="meta">
+                  <span class="mono">${relDate(p.updated)}</span>
+                  <span class="commits mono"><b>${p.commits}</b> commits</span>
+                </div>
+                ${p.tags.length ? `<div class="tags">${p.tags.map(t=>`<span>${t}</span>`).join("")}</div>` : ""}
+              </div>
+            `).join("")}
+          </div>
+        </section>
+      `;
+    }).join("");
+
+    // style + wire up selects (inline style set above with placeholder, fix here with real per-option colors)
+    groupsEl.querySelectorAll(".status-select").forEach(sel=>{
+      const paint = ()=>{
+        const s = STATUS[sel.value];
+        sel.style.color = `var(${s.var})`;
+        sel.style.background = `var(${s.bg})`;
+      };
+      paint();
+      sel.addEventListener("change", async ()=>{
+        const id = sel.dataset.id;
+        const newStatus = sel.value;
+        const p = projects.find(x=>x.id===id);
+        const prev = p.status;
+        p.status = newStatus;
+        paint();
+        renderFilters();
+        const ok = await persist(`statut de "${p.name}" → ${STATUS[newStatus].label}`);
+        if(!ok){ /* kept locally even if not persisted */ }
+      });
+    });
+  }
+
+  function renderAll(){ renderFilters(); renderGroups(); }
+
+  async function loadProjects(){
+    const res = await fetch("projects.json?_=" + Date.now());
+    const data = await res.json();
+    projects = data.projects;
+    document.getElementById("syncTime").textContent = new Date(data.generatedAt).toLocaleString("fr-FR", { dateStyle:"medium", timeStyle:"short" });
+    renderAll();
+  }
+
+  // ---------- GitHub persistence ----------
+  function getToken(){ return localStorage.getItem(TOKEN_KEY) || ""; }
+
+  async function persist(label){
+    const token = getToken();
+    if(!token){
+      toast("Non sauvegardé (pas de token — voir ⚙️ Réglages)");
+      return false;
+    }
+    try{
+      const getRes = await fetch(`https://api.github.com/repos/${REPO}/contents/${FILE_PATH}`, {
+        headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json" }
+      });
+      if(!getRes.ok) throw new Error("lecture impossible (" + getRes.status + ")");
+      const cur = await getRes.json();
+      const payload = { generatedAt: new Date().toISOString(), projects };
+      const content = btoa(unescape(encodeURIComponent(JSON.stringify(payload, null, 2))));
+      const putRes = await fetch(`https://api.github.com/repos/${REPO}/contents/${FILE_PATH}`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json" },
+        body: JSON.stringify({
+          message: `chore: ${label}`,
+          content,
+          sha: cur.sha
+        })
+      });
+      if(!putRes.ok){ const t = await putRes.text(); throw new Error("écriture refusée (" + putRes.status + ") " + t.slice(0,120)); }
+      toast("Enregistré sur GitHub ✓");
+      return true;
+    }catch(err){
+      toast("Échec : " + err.message);
+      return false;
+    }
+  }
+
+  // ---------- settings panel ----------
+  const overlay = document.getElementById("overlay");
+  const tokenInput = document.getElementById("tokenInput");
+  const tokenStatus = document.getElementById("tokenStatus");
+
+  function refreshTokenStatus(){
+    const has = !!getToken();
+    tokenStatus.innerHTML = has
+      ? `<span class="dot" style="background:var(--ok)"></span> Token enregistré — l'édition est persistante.`
+      : `<span class="dot" style="background:var(--ink-faint)"></span> Aucun token — les changements restent locaux à cet onglet.`;
+  }
+
+  document.getElementById("settingsBtn").addEventListener("click", ()=>{
+    tokenInput.value = "";
+    refreshTokenStatus();
+    overlay.hidden = false;
+  });
+  document.getElementById("closeSettingsBtn").addEventListener("click", ()=> overlay.hidden = true);
+  overlay.addEventListener("click", (e)=>{ if(e.target === overlay) overlay.hidden = true; });
+  document.getElementById("saveTokenBtn").addEventListener("click", ()=>{
+    const v = tokenInput.value.trim();
+    if(!v){ toast("Colle un token avant d'enregistrer"); return; }
+    localStorage.setItem(TOKEN_KEY, v);
+    tokenInput.value = "";
+    refreshTokenStatus();
+    toast("Token enregistré dans ce navigateur");
+  });
+  document.getElementById("clearTokenBtn").addEventListener("click", ()=>{
+    localStorage.removeItem(TOKEN_KEY);
+    refreshTokenStatus();
+    toast("Token supprimé");
+  });
+  document.getElementById("refreshBtn").addEventListener("click", ()=>{ loadProjects(); toast("Rechargé"); });
+
+  loadProjects();
+</script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+{
+  "generatedAt": "2026-08-19T09:00:00Z",
+  "projects": [
+    { "id": "repartix", "repo": "afgto79/RepartiX", "name": "RepartiX", "desc": "Application de contrôle des remises Alliance Healthcare pour les pharmacies.", "tags": ["React", "Node"], "status": "cours", "updated": "2026-08-19", "commits": 68 },
+    { "id": "facture-explorer", "repo": "afgto79/Explorateur-de-factures", "name": "facture-explorer", "desc": "Gestion et analyse des factures décadaires : visualisation des dépenses mensuelles et suivi des avoirs.", "tags": [], "status": "cours", "updated": "2026-08-19", "commits": 53 },
+    { "id": "mwps", "repo": "afgto79/mwps-backend", "name": "Backend MWPS", "desc": "Synchronisation planifiée et transfert de données pharmacie vers Google Sheets.", "tags": ["Python"], "status": "terminee", "updated": "2026-08-19", "commits": 45 },
+    { "id": "pharma-pilote", "repo": "afgto79/Pharma-Pilote", "name": "Pharma-Pilote", "desc": "Parseur PDF Winpharma et module de contrôle des synthèses mensuelles.", "tags": [], "status": "cours", "updated": "2026-08-19", "commits": 10 },
+    { "id": "simsg", "repo": "afgto79/SimSG", "name": "SimSG", "desc": "Simulateur de scénarios financiers pour un projet de bureaux médicaux.", "tags": ["React", "Vite", "TS", "Tailwind"], "status": "cours", "updated": "2026-08-19", "commits": 17 },
+    { "id": "analysewinpharma", "repo": "afgto79/analysewinpharma", "name": "analysewinpharma", "desc": "Analyse des KPIs d'officine à partir d'exports CSV Winpharma, en local et hors-ligne.", "tags": ["PWA"], "status": "cours", "updated": "2026-08-19", "commits": 4 },
+    { "id": "hub4app", "repo": "afgto79/hub4app", "name": "hub4app", "desc": "Hub centralisé pour accéder à toutes les applications, avec permissions et favoris.", "tags": ["Supabase"], "status": "cours", "updated": "2026-08-19", "commits": 2 },
+    { "id": "retropharma", "repo": "afgto79/Retropharma", "name": "Retropharma", "desc": "Gestion des rétrocessions entre pharmacies françaises.", "tags": [], "status": "pause", "updated": "2025-11-21", "commits": 12 },
+    { "id": "reflectionapp", "repo": "afgto79/ReflectionApp", "name": "ReflectionApp", "desc": "", "tags": [], "status": "pause", "updated": "2025-11-08", "commits": 2 },
+    { "id": "sitesaintgab", "repo": "afgto79/sitesaintgab", "name": "sitesaintgab", "desc": "Site vitrine pour le Pôle Médical Saint-Gabriel : cabinets médicaux et crèche à Ajaccio.", "tags": [], "status": "pause", "updated": "2025-10-18", "commits": 2 },
+    { "id": "jourdefoot", "repo": "afgto79/jourdefoot", "name": "jourdefoot", "desc": "", "tags": [], "status": "abandonne", "updated": "2025-10-09", "commits": 2 },
+    { "id": "pagedeconnexion", "repo": "afgto79/pagedeconnexion", "name": "pagedeconnexion", "desc": "Démo d'authentification universelle avec React, TypeScript et TailwindCSS.", "tags": ["React", "TS", "Tailwind"], "status": "pause", "updated": "2025-10-08", "commits": 1 },
+    { "id": "trod-cystite", "repo": "afgto79/trod-cystite", "name": "TROD Cystite", "desc": "Interrogatoire patient pour évaluer l'éligibilité au test rapide d'orientation diagnostique cystite.", "tags": [], "status": "terminee", "updated": "2025-10-08", "commits": 2 },
+    { "id": "genabot", "repo": "afgto79/Genabot", "name": "Genabot", "desc": "", "tags": [], "status": "brouillon", "updated": "2025-10-24", "commits": 1 },
+    { "id": "chatgptopen", "repo": "afgto79/ChatgptOpen", "name": "ChatgptOpen", "desc": "", "tags": [], "status": "pause", "updated": "2025-05-07", "commits": 2 }
+  ]
+}
