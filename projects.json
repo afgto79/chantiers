@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-19T11:25:33.991Z",
+  "generatedAt": "2026-08-19T11:37:46.752Z",
   "projects": [
     {
       "id": "repartix",
@@ -171,7 +171,7 @@
       "name": "ChatgptOpen",
       "desc": "Visualiseur local d'exports de conversations ChatGPT (JSON → page HTML lisible).",
       "tags": [],
-      "status": "pause",
+      "status": "abandonne",
       "updated": "2026-08-19",
       "commits": 3
     }
