@@ -340,12 +340,10 @@
         const id = sel.dataset.id;
         const newStatus = sel.value;
         const p = projects.find(x=>x.id===id);
-        const prev = p.status;
-        p.status = newStatus;
+        p.status = newStatus; // optimistic local update for instant feedback
         paint();
         renderFilters();
-        const ok = await persist(`statut de "${p.name}" → ${STATUS[newStatus].label}`);
-        if(!ok){ /* kept locally even if not persisted */ }
+        await persistStatus(id, newStatus, `statut de "${p.name}" → ${STATUS[newStatus].label}`);
       });
     });
   }
@@ -363,20 +361,29 @@
   // ---------- GitHub persistence ----------
   function getToken(){ return localStorage.getItem(TOKEN_KEY) || ""; }
 
-  async function persist(label){
+  // Écrit UN SEUL changement de statut, en le fusionnant dans la version la plus
+  // fraîche possible de projects.json (jamais dans l'instantané local de cet onglet,
+  // qui peut être périmé si l'Action a tourné entre-temps — sinon on écraserait
+  // silencieusement des champs comme "updated"/"commits" avec des valeurs obsolètes).
+  async function persistStatus(id, newStatus, label){
     const token = getToken();
     if(!token){
       toast("Non sauvegardé (pas de token — voir ⚙️ Réglages)");
       return false;
     }
     try{
-      const getRes = await fetch(`https://api.github.com/repos/${REPO}/contents/${FILE_PATH}`, {
+      const getRes = await fetch(`https://api.github.com/repos/${REPO}/contents/${FILE_PATH}?_=${Date.now()}`, {
         headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json" }
       });
       if(!getRes.ok) throw new Error("lecture impossible (" + getRes.status + ")");
       const cur = await getRes.json();
-      const payload = { generatedAt: new Date().toISOString(), projects };
-      const content = btoa(unescape(encodeURIComponent(JSON.stringify(payload, null, 2))));
+      const fresh = JSON.parse(decodeURIComponent(escape(atob(cur.content))));
+      const freshProject = fresh.projects.find(x => x.id === id);
+      if(!freshProject) throw new Error(`projet "${id}" introuvable dans la version distante`);
+      freshProject.status = newStatus;
+      fresh.generatedAt = new Date().toISOString();
+
+      const content = btoa(unescape(encodeURIComponent(JSON.stringify(fresh, null, 2) + "\n")));
       const putRes = await fetch(`https://api.github.com/repos/${REPO}/contents/${FILE_PATH}`, {
         method: "PUT",
         headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json" },
@@ -387,6 +394,11 @@
         })
       });
       if(!putRes.ok){ const t = await putRes.text(); throw new Error("écriture refusée (" + putRes.status + ") " + t.slice(0,120)); }
+
+      // Resynchronise l'onglet entier sur l'état distant réel qu'on vient d'écrire,
+      // pour ne pas garder d'autres champs périmés en mémoire.
+      projects = fresh.projects;
+      renderAll();
       toast("Enregistré sur GitHub ✓");
       return true;
     }catch(err){
