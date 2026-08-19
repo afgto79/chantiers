@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-19T11:19:41.424Z",
+  "generatedAt": "2026-08-19T11:25:33.991Z",
   "projects": [
     {
       "id": "repartix",
@@ -92,18 +92,21 @@
       "desc": "Gestion des rétrocessions entre pharmacies françaises.",
       "tags": [],
       "status": "pause",
-      "updated": "2025-11-21",
-      "commits": 12
+      "updated": "2025-11-22",
+      "commits": 7
     },
     {
       "id": "reflectionapp",
       "repo": "afgto79/ReflectionApp",
       "name": "ReflectionApp",
       "desc": "Journal de réflexion personnelle sur Android : questions par chapitres, réponses saisies au fil de l'eau, écran de relecture.",
-      "tags": ["Android", "Java"],
+      "tags": [
+        "Android",
+        "Java"
+      ],
       "status": "pause",
-      "updated": "2025-11-08",
-      "commits": 2
+      "updated": "2026-08-19",
+      "commits": 3
     },
     {
       "id": "sitesaintgab",
@@ -120,10 +123,13 @@
       "repo": "afgto79/jourdefoot",
       "name": "jourdefoot",
       "desc": "Planificateur de tour de rôle scolaire sur calendrier continu, avec prise en compte des vacances scolaires (rôles admin/élève).",
-      "tags": ["React", "Supabase"],
+      "tags": [
+        "React",
+        "Supabase"
+      ],
       "status": "abandonne",
-      "updated": "2025-10-09",
-      "commits": 2
+      "updated": "2026-08-19",
+      "commits": 3
     },
     {
       "id": "pagedeconnexion",
@@ -166,8 +172,8 @@
       "desc": "Visualiseur local d'exports de conversations ChatGPT (JSON → page HTML lisible).",
       "tags": [],
       "status": "pause",
-      "updated": "2025-05-07",
-      "commits": 2
+      "updated": "2026-08-19",
+      "commits": 3
     }
   ]
 }
