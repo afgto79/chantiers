@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-19T11:05:16.846Z",
+  "generatedAt": "2026-08-19T11:08:55.266Z",
   "projects": [
     {
       "id": "repartix",
@@ -43,8 +43,8 @@
       "desc": "Parseur PDF Winpharma et module de contrôle des synthèses mensuelles.",
       "tags": [],
       "status": "cours",
-      "updated": "2026-01-05",
-      "commits": 1
+      "updated": "2026-08-19",
+      "commits": 10
     },
     {
       "id": "simsg",
@@ -92,8 +92,8 @@
       "desc": "Gestion des rétrocessions entre pharmacies françaises.",
       "tags": [],
       "status": "pause",
-      "updated": "2025-11-15",
-      "commits": 5
+      "updated": "2025-11-22",
+      "commits": 7
     },
     {
       "id": "reflectionapp",
@@ -122,8 +122,8 @@
       "desc": "",
       "tags": [],
       "status": "abandonne",
-      "updated": "2025-10-05",
-      "commits": 15
+      "updated": "2025-10-09",
+      "commits": 2
     },
     {
       "id": "pagedeconnexion",
