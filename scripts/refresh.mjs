@@ -23,25 +23,34 @@ function lastPageFromLink(linkHeader) {
   return match ? parseInt(match[1], 10) : 1;
 }
 
-async function fetchRepoStats(repo) {
-  const repoRes = await fetch(`https://api.github.com/repos/${repo}`, { headers });
-  if (!repoRes.ok) throw new Error(`${repo}: GET /repos → ${repoRes.status}`);
-  const repoData = await repoRes.json();
-  const branch = repoData.default_branch || "main";
-
+async function branchStats(repo, branch) {
   const commitsRes = await fetch(
     `https://api.github.com/repos/${repo}/commits?sha=${encodeURIComponent(branch)}&per_page=1`,
     { headers }
   );
-  if (!commitsRes.ok) throw new Error(`${repo}: GET /commits → ${commitsRes.status}`);
+  if (!commitsRes.ok) throw new Error(`${repo}@${branch}: GET /commits → ${commitsRes.status}`);
   const commitsData = await commitsRes.json();
   const latest = commitsData[0];
   const updated = latest
     ? (latest.commit.committer?.date || latest.commit.author?.date || "").slice(0, 10)
     : null;
   const commits = lastPageFromLink(commitsRes.headers.get("link"));
+  return { branch, updated, commits };
+}
 
-  return { updated, commits };
+// Le vrai travail ne vit pas toujours sur la branche par défaut (ex: travail resté
+// sur une branche claude/... jamais fusionnée dans main). On regarde donc TOUTES
+// les branches et on retient celle dont le dernier commit est le plus récent,
+// plutôt que de supposer que "main" est à jour.
+async function fetchRepoStats(repo) {
+  const branchesRes = await fetch(`https://api.github.com/repos/${repo}/branches?per_page=100`, { headers });
+  if (!branchesRes.ok) throw new Error(`${repo}: GET /branches → ${branchesRes.status}`);
+  const branches = await branchesRes.json();
+  if (!branches.length) throw new Error(`${repo}: aucune branche trouvée`);
+
+  const results = await Promise.all(branches.map(b => branchStats(repo, b.name)));
+  results.sort((a, b) => (b.updated || "").localeCompare(a.updated || ""));
+  return results[0];
 }
 
 const raw = await readFile(new URL("../projects.json", import.meta.url), "utf8");
@@ -53,7 +62,7 @@ for (const p of data.projects) {
     const stats = await fetchRepoStats(p.repo);
     if (stats.updated && stats.updated !== p.updated) { p.updated = stats.updated; changed = true; }
     if (stats.commits && stats.commits !== p.commits) { p.commits = stats.commits; changed = true; }
-    console.log(`ok   ${p.repo} → ${stats.updated}, ${stats.commits} commits`);
+    console.log(`ok   ${p.repo}@${stats.branch} → ${stats.updated}, ${stats.commits} commits`);
   } catch (err) {
     console.warn(`skip ${p.repo}: ${err.message}`);
   }
