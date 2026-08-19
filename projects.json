@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-19T11:08:55.266Z",
+  "generatedAt": "2026-08-19T11:19:41.424Z",
   "projects": [
     {
       "id": "repartix",
@@ -57,7 +57,7 @@
         "TS",
         "Tailwind"
       ],
-      "status": "cours",
+      "status": "terminee",
       "updated": "2026-08-19",
       "commits": 17
     },
@@ -92,8 +92,8 @@
       "desc": "Gestion des rétrocessions entre pharmacies françaises.",
       "tags": [],
       "status": "pause",
-      "updated": "2025-11-22",
-      "commits": 7
+      "updated": "2025-11-21",
+      "commits": 12
     },
     {
       "id": "reflectionapp",
@@ -111,7 +111,7 @@
       "name": "sitesaintgab",
       "desc": "Site vitrine pour le Pôle Médical Saint-Gabriel : cabinets médicaux et crèche à Ajaccio.",
       "tags": [],
-      "status": "pause",
+      "status": "abandonne",
       "updated": "2025-10-18",
       "commits": 2
     },
