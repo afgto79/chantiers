@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-19T11:37:46.752Z",
+  "generatedAt": "2026-08-22T06:17:36.748Z",
   "projects": [
     {
       "id": "repartix",
@@ -43,8 +43,8 @@
       "desc": "Parseur PDF Winpharma et module de contrôle des synthèses mensuelles.",
       "tags": [],
       "status": "cours",
-      "updated": "2026-08-19",
-      "commits": 10
+      "updated": "2026-08-21",
+      "commits": 16
     },
     {
       "id": "simsg",
