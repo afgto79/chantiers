@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-24T10:24:24.602Z",
+  "generatedAt": "2026-08-25T06:22:35.736Z",
   "projects": [
     {
       "id": "repartix",
@@ -21,8 +21,8 @@
       "desc": "Gestion et analyse des factures décadaires : visualisation des dépenses mensuelles et suivi des avoirs.",
       "tags": [],
       "status": "cours",
-      "updated": "2026-08-19",
-      "commits": 53
+      "updated": "2026-08-24",
+      "commits": 70
     },
     {
       "id": "mwps",
@@ -43,8 +43,8 @@
       "desc": "Parseur PDF Winpharma et module de contrôle des synthèses mensuelles.",
       "tags": [],
       "status": "terminee",
-      "updated": "2026-08-22",
-      "commits": 18
+      "updated": "2026-08-24",
+      "commits": 33
     },
     {
       "id": "simsg",
