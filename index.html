@@ -479,6 +479,12 @@
       }
       const html = DOMPurify.sanitize(marked.parse(state));
       box.innerHTML = html;
+      // Certains README ont un badge (CI, build...) hébergé sur une URL qui ne répond
+      // pas pour un dépôt privé sans une auth différente de notre token — plutôt que
+      // l'icône d'image cassée, on masque discrètement l'image en échec.
+      box.querySelectorAll("img").forEach(img => {
+        img.addEventListener("error", () => { img.style.display = "none"; }, { once: true });
+      });
     };
 
     if(readmeCache.has(repo)){ paint(readmeCache.get(repo)); return; }
