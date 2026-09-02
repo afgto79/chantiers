@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-25T06:22:35.736Z",
+  "generatedAt": "2026-09-02T12:00:00.000Z",
   "projects": [
     {
       "id": "repartix",
@@ -166,14 +166,40 @@
       "commits": 1
     },
     {
-      "id": "chatgptopen",
-      "repo": "afgto79/ChatgptOpen",
-      "name": "ChatgptOpen",
-      "desc": "Visualiseur local d'exports de conversations ChatGPT (JSON → page HTML lisible).",
-      "tags": [],
-      "status": "abandonne",
-      "updated": "2026-08-19",
-      "commits": 3
+      "id": "task-gate",
+      "repo": "afgto79/claude-plugin-task-gate",
+      "name": "claude-plugin-task-gate",
+      "desc": "Plugin Claude Code imposant par des hooks le workflow RESEARCH → PLAN → APPROVED → IMPLEMENT → REVIEW → DONE sur les projets importants.",
+      "tags": [
+        "Python"
+      ],
+      "status": "cours",
+      "updated": "2026-08-28",
+      "commits": 4
+    },
+    {
+      "id": "suivigeneriques",
+      "repo": "afgto79/SuiviGeneriques",
+      "name": "SuiviGeneriques",
+      "desc": "Suivi des seuils de remise génériques par laboratoire et par répartiteur.",
+      "tags": [
+        "HTML"
+      ],
+      "status": "cours",
+      "updated": "2026-09-02",
+      "commits": 16
+    },
+    {
+      "id": "claude-memory-sync",
+      "repo": "afgto79/claude-memory-sync",
+      "name": "claude-memory-sync",
+      "desc": "Commande /evernoteupdate : sauvegarde et synchronise la mémoire Claude (memory/*.md) vers Evernote.",
+      "tags": [
+        "Python"
+      ],
+      "status": "brouillon",
+      "updated": "2026-08-28",
+      "commits": 6
     }
   ]
 }
