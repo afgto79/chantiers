@@ -15,7 +15,7 @@
 
 <style>
   :root{
-    --ground:#F6F4EE; --surface:#FFFFFF; --surface-2:#EFECE1;
+    --ground:#F6F4EE; --surface:#FFFFFF; --surface-2:#EFECE1; --sidebar:#F1EEE4;
     --ink:#1C1A15; --ink-muted:#716B5A; --ink-faint:#9B9484;
     --accent:#C05E2C; --line:#E6E2D6;
     --ok:#3F7D57; --ok-bg:#E4EFE6;
@@ -28,7 +28,7 @@
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
-      --ground:#16140F; --surface:#1F1C15; --surface-2:#262218;
+      --ground:#16140F; --surface:#1F1C15; --surface-2:#262218; --sidebar:#1A1710;
       --ink:#F3EFE3; --ink-muted:#A79F8A; --ink-faint:#79725F;
       --accent:#E4914F; --line:#332D20;
       --ok:#7FBB93; --ok-bg:#22301F;
@@ -40,7 +40,7 @@
     }
   }
   :root[data-theme="dark"]{
-    --ground:#16140F; --surface:#1F1C15; --surface-2:#262218;
+    --ground:#16140F; --surface:#1F1C15; --surface-2:#262218; --sidebar:#1A1710;
     --ink:#F3EFE3; --ink-muted:#A79F8A; --ink-faint:#79725F;
     --accent:#E4914F; --line:#332D20;
     --ok:#7FBB93; --ok-bg:#22301F;
@@ -52,20 +52,22 @@
   }
 
   *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
-  body{ background:var(--ground); color:var(--ink); font-family:"IBM Plex Sans", ui-sans-serif, system-ui, sans-serif; -webkit-font-smoothing:antialiased; }
+  html,body{margin:0;padding:0;height:100%;}
+  body{
+    background:var(--ground); color:var(--ink); font-family:"IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing:antialiased; min-height:100vh; display:flex; flex-direction:column;
+  }
   .mono{ font-family:"IBM Plex Mono", ui-monospace, "SF Mono", monospace; font-variant-numeric: tabular-nums; }
-  button{ font-family:inherit; }
+  button, select{ font-family:inherit; }
 
-  .page{ max-width: 920px; margin: 0 auto; padding: 24px 20px 80px; }
-
+  /* ---- top bar ---- */
   header.bar{
-    display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between;
-    gap: 10px 24px; padding-bottom: 18px; border-bottom: 1px solid var(--line); margin-bottom: 20px;
+    display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between;
+    gap: 10px 24px; padding: 14px 22px; border-bottom: 1px solid var(--line); flex:none;
   }
   .brand{ display:flex; align-items:baseline; gap:12px; }
-  .brand h1{ font-family:"Fraunces", Georgia, serif; font-weight:600; font-optical-sizing:auto; font-size: 30px; margin:0; letter-spacing: -0.01em; }
-  .brand .tag{ color:var(--ink-muted); font-size:14px; }
+  .brand h1{ font-family:"Fraunces", Georgia, serif; font-weight:600; font-optical-sizing:auto; font-size: 24px; margin:0; letter-spacing: -0.01em; }
+  .brand .tag{ color:var(--ink-muted); font-size:13px; }
 
   .headctrls{ display:flex; align-items:center; gap:14px; }
   .sync{ display:flex; align-items:center; gap:8px; color:var(--ink-faint); font-size:12.5px; }
@@ -85,64 +87,97 @@
   .iconbtn:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
   .iconbtn svg{ width:15px; height:15px; }
 
-  .filters{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom: 26px; }
-  .chip{
-    font-family:"IBM Plex Mono", monospace; font-size:12.5px; border:1px solid var(--line);
-    background:var(--surface); color:var(--ink-muted); padding:7px 12px; border-radius:999px;
-    cursor:pointer; display:flex; align-items:center; gap:7px; transition: border-color .15s ease, color .15s ease, background .15s ease;
+  /* ---- app shell : sidebar + detail ---- */
+  .shell{ flex:1; display:grid; grid-template-columns: 292px 1fr; min-height:0; }
+
+  .sidebar{
+    background:var(--sidebar); border-right:1px solid var(--line);
+    display:flex; flex-direction:column; min-height:0;
   }
-  .chip:hover{ border-color: var(--accent); color:var(--ink); }
-  .chip:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
-  .chip .n{ color:var(--ink-faint); }
-  .chip[aria-pressed="true"]{ background:var(--ink); color:var(--ground); border-color:var(--ink); }
-  .chip[aria-pressed="true"] .n{ color: color-mix(in srgb, var(--ground) 65%, transparent); }
-  .chip .dot{ width:7px;height:7px;border-radius:50%; flex:none; }
-
-  .group{ margin-bottom: 30px; }
-  .group[hidden]{ display:none; }
-  .group h2{
-    font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; font-weight:600;
-    color: var(--ink-muted); margin: 0 0 12px; display:flex; align-items:center; gap:9px;
+  .search{ padding:14px 14px 10px; flex:none; }
+  .search input{
+    width:100%; border:1px solid var(--line); background:var(--surface); color:var(--ink);
+    border-radius:8px; padding:8px 10px; font-size:12.5px; font-family:inherit;
   }
-  .group h2 .dot{ width:8px;height:8px;border-radius:50%; }
-  .group h2 .count{ color:var(--ink-faint); font-weight:400; font-family:"IBM Plex Mono", monospace; text-transform:none; letter-spacing:0; }
+  .search input::placeholder{ color:var(--ink-faint); }
+  .search input:focus-visible{ outline:2px solid var(--accent); outline-offset:1px; }
 
-  .grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
-
-  .card{
-    background:var(--surface); border:1px solid var(--line); border-radius: var(--radius);
-    padding: 15px 16px 14px; box-shadow: var(--shadow); display:flex; flex-direction:column; gap:9px;
-    transition: border-color .15s ease;
+  .statusnav{ padding:0 10px; display:flex; flex-direction:column; gap:1px; flex:none; }
+  .statusnav button{
+    display:flex; align-items:center; gap:8px; width:100%; text-align:left; border:none; background:none;
+    padding:7px 8px; border-radius:7px; cursor:pointer; font-size:12.5px; color:var(--ink-muted);
   }
-  .card:hover{ border-color: var(--accent); }
-  .card .top{ display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
-  .card h3{ font-size:15.5px; font-weight:600; margin:0; line-height:1.3; }
-  .card h3 a{ color:inherit; text-decoration:none; }
-  .card h3 a:hover{ text-decoration:underline; text-decoration-color:var(--accent); }
-  .card .desc{ font-size:13px; color:var(--ink-muted); line-height:1.5; margin:0; }
-  .card .desc.empty{ font-style:italic; color:var(--ink-faint); }
+  .statusnav button:hover{ background:var(--surface-2); color:var(--ink); }
+  .statusnav button:focus-visible{ outline:2px solid var(--accent); outline-offset:-2px; }
+  .statusnav button.active{ background:var(--surface); color:var(--ink); box-shadow:var(--shadow); }
+  .statusnav .dot{ width:7px; height:7px; border-radius:50%; flex:none; }
+  .statusnav .dot.all{ background:var(--ink-faint); }
+  .statusnav .lbl{ flex:1; }
+  .statusnav .n{ font-family:"IBM Plex Mono", monospace; color:var(--ink-faint); font-size:11px; }
+  .statusnav button.active .n{ color:var(--ink-muted); }
 
-  .card .meta{
-    margin-top:auto; padding-top:9px; border-top:1px dashed var(--line);
-    display:flex; align-items:center; justify-content:space-between; font-size:11.5px; color:var(--ink-faint);
+  .divider{ height:1px; background:var(--line); margin:12px 14px; flex:none; }
+
+  .list{ flex:1; overflow-y:auto; padding:0 8px 14px; min-height:0; }
+  .row{
+    display:flex; align-items:center; gap:9px; width:100%; text-align:left; border:none; background:none;
+    padding:8px 9px; border-radius:8px; cursor:pointer; border-left:2px solid transparent;
   }
-  .card .meta .commits{ display:flex; gap:5px; align-items:baseline; }
-  .card .meta .commits b{ color:var(--ink-muted); font-weight:500; }
+  .row:hover{ background:var(--surface-2); }
+  .row:focus-visible{ outline:2px solid var(--accent); outline-offset:-2px; }
+  .row.selected{ background:var(--surface); border-left-color:var(--accent); box-shadow:var(--shadow); }
+  .row .dot{ width:7px; height:7px; border-radius:50%; flex:none; }
+  .row .name{ flex:1; min-width:0; font-size:13px; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .row.selected .name{ font-weight:600; }
+  .row .meta{ font-size:10.5px; color:var(--ink-faint); flex:none; }
+  .empty-hint{ color:var(--ink-faint); font-size:12px; padding:14px 10px; text-align:center; }
 
-  .tags{ display:flex; flex-wrap:wrap; gap:5px; }
-  .tags span{ font-family:"IBM Plex Mono", monospace; font-size:10.5px; color:var(--ink-muted); background:var(--surface-2); border-radius:5px; padding:2px 6px; }
+  .main{ min-height:0; overflow-y:auto; }
+  .detail{ max-width:640px; margin:0 auto; padding:34px 32px 60px; }
+
+  .backbtn{ display:none; align-items:center; gap:6px; border:none; background:none; color:var(--ink-muted); font-size:12.5px; padding:0 0 16px; margin:0; cursor:pointer; }
+  .backbtn svg{ width:14px; height:14px; }
+
+  .dtop{ display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:8px; }
+  .dtitle{ display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
+  .dtitle h2{ font-family:"Fraunces", Georgia, serif; font-weight:600; font-size:26px; margin:0; letter-spacing:-0.01em; text-wrap:balance; }
+  .dtitle a.repo{ color:var(--ink-faint); font-size:12px; text-decoration:none; display:inline-flex; align-items:center; gap:4px; }
+  .dtitle a.repo:hover{ color:var(--accent); }
+  .dtitle a.repo svg{ width:11px; height:11px; }
 
   .status-select{
-    flex:none; font-family:"IBM Plex Mono", monospace; font-size:10.5px; font-weight:500;
-    padding:4px 22px 4px 9px; border-radius:999px; border:1px solid transparent; cursor:pointer;
+    flex:none; font-family:"IBM Plex Mono", monospace; font-size:11px; font-weight:500;
+    padding:5px 24px 5px 10px; border-radius:999px; border:1px solid transparent; cursor:pointer;
     appearance:none; -webkit-appearance:none;
-    background-repeat:no-repeat; background-position:right 8px center; background-size:9px;
+    background-repeat:no-repeat; background-position:right 9px center; background-size:9px;
   }
-  .status-select:hover{ border-color: currentColor; }
+  .status-select:hover{ border-color:currentColor; }
   .status-select:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
 
-  .note{ margin-top: 36px; padding-top: 18px; border-top:1px solid var(--line); font-size:12.5px; color:var(--ink-faint); line-height:1.6; }
+  .desc{ font-size:15px; line-height:1.65; color:var(--ink); margin:14px 0 0; max-width:62ch; }
+  .desc.empty{ color:var(--ink-faint); font-style:italic; }
+
+  .factrow{ display:flex; flex-wrap:wrap; gap:22px; margin:26px 0 0; padding:16px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+  .fact{ display:flex; flex-direction:column; gap:3px; }
+  .fact .k{ font-size:10.5px; text-transform:uppercase; letter-spacing:.07em; color:var(--ink-faint); }
+  .fact .v{ font-size:14px; color:var(--ink); font-family:"IBM Plex Mono", monospace; }
+
+  .tags{ display:flex; flex-wrap:wrap; gap:6px; margin-top:22px; }
+  .tags span{ font-family:"IBM Plex Mono", monospace; font-size:11px; color:var(--ink-muted); background:var(--surface-2); border-radius:5px; padding:3px 8px; }
+  .tags-empty{ color:var(--ink-faint); font-size:12.5px; margin-top:22px; }
+
+  .note{ padding:14px 22px; border-top:1px solid var(--line); font-size:12px; color:var(--ink-faint); line-height:1.6; flex:none; }
   .note code{ font-family:"IBM Plex Mono", monospace; background:var(--surface-2); padding:1px 5px; border-radius:4px; color:var(--ink-muted); }
+
+  @media (max-width: 760px){
+    .shell{ grid-template-columns: 1fr; }
+    .sidebar{ border-right:none; }
+    body.detail-open .sidebar{ display:none; }
+    body:not(.detail-open) .main{ display:none; }
+    .backbtn{ display:inline-flex; }
+    .detail{ padding:20px 18px 50px; }
+    .note{ display:none; }
+  }
 
   /* settings panel */
   .overlay{
@@ -181,7 +216,6 @@
 </style>
 </head>
 <body>
-<div class="page">
 
   <header class="bar">
     <div class="brand">
@@ -199,17 +233,26 @@
     </div>
   </header>
 
-  <nav class="filters" id="filters" aria-label="Filtrer par statut"></nav>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="search">
+        <input type="text" id="search" placeholder="Filtrer par nom ou tag…" autocomplete="off">
+      </div>
+      <nav class="statusnav" id="statusnav" aria-label="Filtrer par statut"></nav>
+      <div class="divider"></div>
+      <div class="list" id="list"></div>
+    </aside>
 
-  <main id="groups"></main>
+    <main class="main" id="main">
+      <div class="detail" id="detail"></div>
+    </main>
+  </div>
 
   <p class="note">
-    Le statut se change directement sur chaque carte. Avec un token enregistré (⚙️ Réglages), le changement est écrit dans
+    Le statut se change directement dans le panneau de détail. Avec un token enregistré (⚙️ Réglages), le changement est écrit dans
     <code>projects.json</code> sur GitHub. Sans token, le changement reste local à cet onglet.
     "Dernière activité" et "nb de commits" sont recalculés automatiquement chaque jour par une Action GitHub.
   </p>
-
-</div>
 
 <div class="overlay" id="overlay" hidden>
   <div class="panel">
@@ -247,11 +290,14 @@
   const ORDER = ["cours","pause","terminee","abandonne","brouillon"];
 
   let projects = [];
-  let currentSha = null;
-  let active = "tous";
+  let activeStatus = "tous";
+  let query = "";
+  let selectedId = null;
 
-  const filtersEl = document.getElementById("filters");
-  const groupsEl = document.getElementById("groups");
+  const statusnavEl = document.getElementById("statusnav");
+  const listEl = document.getElementById("list");
+  const detailEl = document.getElementById("detail");
+  const searchEl = document.getElementById("search");
   const toastEl = document.getElementById("toast");
 
   function toast(msg, ms=2600){
@@ -278,82 +324,107 @@
     return c;
   }
 
-  function renderFilters(){
-    const c = counts();
-    const chips = [{key:"tous", label:"Tous", var:null}].concat(ORDER.map(k => ({key:k, label:STATUS[k].label, var:STATUS[k].var})));
-    filtersEl.innerHTML = chips.map(ch => `
-      <button class="chip" data-key="${ch.key}" aria-pressed="${ch.key===active}">
-        ${ch.var ? `<span class="dot" style="background:var(${ch.var})"></span>` : ""}
-        ${ch.label} <span class="n">${c[ch.key] ?? 0}</span>
-      </button>
-    `).join("");
-    filtersEl.querySelectorAll(".chip").forEach(btn=>{
-      btn.addEventListener("click", ()=>{ active = btn.dataset.key; renderAll(); });
+  function filtered(){
+    const q = query.trim().toLowerCase();
+    return projects.filter(p=>{
+      if(activeStatus !== "tous" && p.status !== activeStatus) return false;
+      if(!q) return true;
+      return p.name.toLowerCase().includes(q) || p.tags.some(t=>t.toLowerCase().includes(q));
     });
   }
 
-  function statusBg(varName, bgVar){
-    return `color:var(${varName});background:var(${bgVar})`;
+  function renderStatusnav(){
+    const c = counts();
+    const items = [{key:"tous", label:"Tous", v:null}].concat(ORDER.map(k=>({key:k, label:STATUS[k].label, v:STATUS[k].var})));
+    statusnavEl.innerHTML = items.map(it => `
+      <button data-key="${it.key}" class="${it.key===activeStatus?'active':''}">
+        <span class="dot ${it.v?'':'all'}" ${it.v?`style="background:var(${it.v})"`:''}></span>
+        <span class="lbl">${it.label}</span>
+        <span class="n">${c[it.key] ?? 0}</span>
+      </button>
+    `).join("");
+    statusnavEl.querySelectorAll("button").forEach(b=>{
+      b.addEventListener("click", ()=>{ activeStatus = b.dataset.key; renderStatusnav(); renderList(); });
+    });
   }
 
-  function renderGroups(){
-    groupsEl.innerHTML = ORDER.map(key=>{
-      const items = projects.filter(p=>p.status===key);
-      const visible = active==="tous" || active===key;
-      if(!visible) return "";
-      if(items.length===0 && active!=="tous") return "";
-      const s = STATUS[key];
+  function renderList(){
+    const items = filtered();
+    listEl.innerHTML = items.length ? items.map(p=>{
+      const s = STATUS[p.status];
       return `
-        <section class="group" ${items.length===0?"hidden":""}>
-          <h2><span class="dot" style="background:var(${s.var})"></span>${s.label} <span class="count">${items.length}</span></h2>
-          <div class="grid">
-            ${items.map(p=>`
-              <div class="card" data-id="${p.id}">
-                <div class="top">
-                  <h3><a href="https://github.com/${p.repo}" target="_blank" rel="noopener">${p.name}</a></h3>
-                  <select class="status-select" data-id="${p.id}" style="${statusBg('--'+'x','--'+'x')}">
-                    ${ORDER.map(k=>`<option value="${k}" ${k===p.status?"selected":""}>${STATUS[k].label}</option>`).join("")}
-                  </select>
-                </div>
-                <p class="desc ${p.desc ? "" : "empty"}">${p.desc || "Pas encore de description."}</p>
-                <div class="meta">
-                  <span class="mono">${relDate(p.updated)}</span>
-                  <span class="commits mono"><b>${p.commits}</b> commits</span>
-                </div>
-                ${p.tags.length ? `<div class="tags">${p.tags.map(t=>`<span>${t}</span>`).join("")}</div>` : ""}
-              </div>
-            `).join("")}
-          </div>
-        </section>
+        <button class="row ${p.id===selectedId?'selected':''}" data-id="${p.id}">
+          <span class="dot" style="background:var(${s.var})"></span>
+          <span class="name">${p.name}</span>
+          <span class="meta mono">${p.commits}c · ${relDate(p.updated)}</span>
+        </button>
       `;
-    }).join("");
+    }).join("") : `<div class="empty-hint">Aucun projet ne correspond.</div>`;
 
-    // style + wire up selects (inline style set above with placeholder, fix here with real per-option colors)
-    groupsEl.querySelectorAll(".status-select").forEach(sel=>{
-      const paint = ()=>{
-        const s = STATUS[sel.value];
-        sel.style.color = `var(${s.var})`;
-        sel.style.background = `var(${s.bg})`;
-      };
-      paint();
-      sel.addEventListener("change", async ()=>{
-        const id = sel.dataset.id;
-        const newStatus = sel.value;
-        const p = projects.find(x=>x.id===id);
-        p.status = newStatus; // optimistic local update for instant feedback
-        paint();
-        renderFilters();
-        await persistStatus(id, newStatus, `statut de "${p.name}" → ${STATUS[newStatus].label}`);
+    listEl.querySelectorAll(".row").forEach(row=>{
+      row.addEventListener("click", ()=>{
+        selectedId = row.dataset.id;
+        document.body.classList.add("detail-open");
+        renderList();
+        renderDetail();
       });
     });
   }
 
-  function renderAll(){ renderFilters(); renderGroups(); }
+  function renderDetail(){
+    const p = projects.find(x=>x.id===selectedId);
+    if(!p){ detailEl.innerHTML = `<p class="empty-hint">Sélectionnez un projet dans la liste.</p>`; return; }
+    const s = STATUS[p.status];
+    detailEl.innerHTML = `
+      <button class="backbtn" id="backBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        Retour à la liste
+      </button>
+      <div class="dtop">
+        <div class="dtitle">
+          <h2>${p.name}</h2>
+          <a class="repo" href="https://github.com/${p.repo}" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.65.5.5 5.66.5 12.02c0 5.1 3.29 9.43 7.86 10.96.57.1.79-.25.79-.55v-2.1c-3.2.7-3.87-1.36-3.87-1.36-.53-1.33-1.29-1.69-1.29-1.69-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.03 1.77 2.71 1.26 3.37.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.7 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.04 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.79 0c2.2-1.49 3.17-1.18 3.17-1.18.64 1.58.24 2.75.12 3.04.74.81 1.18 1.83 1.18 3.09 0 4.43-2.69 5.4-5.25 5.69.41.36.78 1.07.78 2.15v3.19c0 .3.21.66.8.55A10.53 10.53 0 0 0 23.5 12c0-6.35-5.15-11.5-11.5-11.5z"/></svg>
+            ${p.repo}
+          </a>
+        </div>
+        <select class="status-select" id="statusSelect">
+          ${ORDER.map(k=>`<option value="${k}" ${k===p.status?"selected":""}>${STATUS[k].label}</option>`).join("")}
+        </select>
+      </div>
+      <p class="desc ${p.desc?'':'empty'}">${p.desc || "Pas encore de description."}</p>
+      <div class="factrow">
+        <div class="fact"><span class="k">Dernière activité</span><span class="v">${relDate(p.updated)} · ${p.updated}</span></div>
+        <div class="fact"><span class="k">Commits</span><span class="v">${p.commits}</span></div>
+      </div>
+      ${p.tags.length ? `<div class="tags">${p.tags.map(t=>`<span>${t}</span>`).join("")}</div>` : `<p class="tags-empty">Pas de tags.</p>`}
+    `;
+    const sel = document.getElementById("statusSelect");
+    const paint = ()=>{ sel.style.color = `var(${s.var})`; sel.style.background = `var(${s.bg})`; };
+    paint();
+    sel.addEventListener("change", async ()=>{
+      const newStatus = sel.value;
+      p.status = newStatus; // optimistic local update for instant feedback
+      renderStatusnav();
+      renderList();
+      renderDetail();
+      await persistStatus(p.id, newStatus, `statut de "${p.name}" → ${STATUS[newStatus].label}`);
+    });
+    const back = document.getElementById("backBtn");
+    if(back) back.addEventListener("click", ()=>{ document.body.classList.remove("detail-open"); });
+  }
+
+  function renderAll(){ renderStatusnav(); renderList(); renderDetail(); }
+
+  searchEl.addEventListener("input", ()=>{ query = searchEl.value; renderList(); });
 
   async function loadProjects(){
     const res = await fetch("projects.json?_=" + Date.now());
     const data = await res.json();
     projects = data.projects;
+    if(!selectedId || !projects.some(p=>p.id===selectedId)){
+      selectedId = projects[0] ? projects[0].id : null;
+    }
     document.getElementById("syncTime").textContent = new Date(data.generatedAt).toLocaleString("fr-FR", { dateStyle:"medium", timeStyle:"short" });
     renderAll();
   }
