@@ -166,6 +166,31 @@
   .tags span{ font-family:"IBM Plex Mono", monospace; font-size:11px; color:var(--ink-muted); background:var(--surface-2); border-radius:5px; padding:3px 8px; }
   .tags-empty{ color:var(--ink-faint); font-size:12.5px; margin-top:22px; }
 
+  /* ---- README (récupéré en direct depuis le dépôt) ---- */
+  .readme-wrap{ margin-top:30px; padding-top:22px; border-top:1px solid var(--line); }
+  .readme-heading{ font-size:11px; text-transform:uppercase; letter-spacing:.08em; font-weight:600; color:var(--ink-faint); margin:0 0 14px; }
+  .readme-status{ color:var(--ink-faint); font-size:12.5px; font-style:italic; margin:0; }
+  .readme{ font-size:14px; line-height:1.7; color:var(--ink); max-width:62ch; }
+  .readme > *:first-child{ margin-top:0; }
+  .readme h1, .readme h2, .readme h3{ font-family:"Fraunces", Georgia, serif; font-weight:600; line-height:1.3; text-wrap:balance; margin:24px 0 8px; }
+  .readme h1{ font-size:19px; } .readme h2{ font-size:17px; } .readme h3{ font-size:15px; }
+  .readme p, .readme ul, .readme ol{ margin:0 0 12px; }
+  .readme ul, .readme ol{ padding-left:1.3em; }
+  .readme li{ margin:0 0 4px; }
+  .readme li > ul, .readme li > ol{ margin-top:4px; }
+  .readme a{ color:var(--accent); }
+  .readme strong{ color:var(--ink); font-weight:600; }
+  .readme code{ font-family:"IBM Plex Mono", monospace; font-size:.9em; background:var(--surface-2); border-radius:4px; padding:1px 5px; }
+  .readme pre{ background:var(--surface-2); border-radius:8px; padding:12px 14px; overflow-x:auto; margin:0 0 14px; }
+  .readme pre code{ background:none; padding:0; }
+  .readme blockquote{ margin:0 0 12px; padding-left:12px; border-left:2px solid var(--line); color:var(--ink-muted); }
+  .readme table{ border-collapse:collapse; margin:0 0 14px; font-size:13px; }
+  .readme th, .readme td{ border:1px solid var(--line); padding:5px 9px; text-align:left; }
+  .readme th{ background:var(--surface-2); }
+  .readme hr{ border:none; border-top:1px solid var(--line); margin:20px 0; }
+  .readme img{ max-width:100%; }
+  .readme-tablewrap{ overflow-x:auto; }
+
   .note{ padding:14px 22px; border-top:1px solid var(--line); font-size:12px; color:var(--ink-faint); line-height:1.6; flex:none; }
   .note code{ font-family:"IBM Plex Mono", monospace; background:var(--surface-2); padding:1px 5px; border-radius:4px; color:var(--ink-muted); }
 
@@ -252,15 +277,19 @@
     Le statut se change directement dans le panneau de détail. Avec un token enregistré (⚙️ Réglages), le changement est écrit dans
     <code>projects.json</code> sur GitHub. Sans token, le changement reste local à cet onglet.
     "Dernière activité" et "nb de commits" sont recalculés automatiquement chaque jour par une Action GitHub.
+    Le README affiché dans le panneau de détail est lu en direct sur le dépôt de chaque projet — public sans rien à faire,
+    privé si le token enregistré y a accès en lecture.
   </p>
 
 <div class="overlay" id="overlay" hidden>
   <div class="panel">
     <h2>Réglages</h2>
     <p>
-      Colle ici un <strong>token GitHub à portée réduite</strong> (fine-grained, dépôt <span class="mono">afgto79/chantiers</span> uniquement,
-      permission "Contents: Read and write"). Il est stocké seulement dans ce navigateur (localStorage) et n'est jamais envoyé ailleurs
-      qu'à <span class="mono">api.github.com</span>.
+      Colle ici un <strong>token GitHub à portée réduite</strong> (fine-grained). Pour écrire le statut, il lui faut au minimum l'accès
+      "Contents: Read and write" sur <span class="mono">afgto79/chantiers</span>. Pour afficher aussi le README des projets privés dans le
+      panneau de détail, donne-lui en plus l'accès "Contents: Read" sur ces dépôts-là (ou choisis "All repositories" à la création).
+      Sans cet accès élargi, seuls les dépôts publics affichent leur README. Le token est stocké seulement dans ce navigateur
+      (localStorage) et n'est jamais envoyé ailleurs qu'à <span class="mono">api.github.com</span>.
     </p>
     <div class="status-line" id="tokenStatus"></div>
     <label for="tokenInput">Token GitHub</label>
@@ -275,6 +304,8 @@
 
 <div id="toast" role="status" aria-live="polite"></div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.5/purify.min.js"></script>
 <script>
   const REPO = "afgto79/chantiers";
   const FILE_PATH = "projects.json";
@@ -293,6 +324,8 @@
   let activeStatus = "tous";
   let query = "";
   let selectedId = null;
+  let readmeRequestId = 0;
+  const readmeCache = new Map(); // repo -> markdown texte, ou null si absent/erreur
 
   const statusnavEl = document.getElementById("statusnav");
   const listEl = document.getElementById("list");
@@ -398,7 +431,12 @@
         <div class="fact"><span class="k">Commits</span><span class="v">${p.commits}</span></div>
       </div>
       ${p.tags.length ? `<div class="tags">${p.tags.map(t=>`<span>${t}</span>`).join("")}</div>` : `<p class="tags-empty">Pas de tags.</p>`}
+      <div class="readme-wrap">
+        <p class="readme-heading">README</p>
+        <div id="readmeBox"><p class="readme-status">Chargement…</p></div>
+      </div>
     `;
+    loadReadme(p.repo);
     const sel = document.getElementById("statusSelect");
     const paint = ()=>{ sel.style.color = `var(${s.var})`; sel.style.background = `var(${s.bg})`; };
     paint();
@@ -412,6 +450,67 @@
     });
     const back = document.getElementById("backBtn");
     if(back) back.addEventListener("click", ()=>{ document.body.classList.remove("detail-open"); });
+  }
+
+  // Récupère le README.md du dépôt sélectionné et le rend en HTML. Mis en cache par
+  // dépôt pour ne pas re-télécharger à chaque sélection. Un requestId évite d'afficher
+  // un résultat périmé si l'utilisateur change de projet pendant le fetch.
+  //
+  // Deux chemins, car la plupart de ces dépôts sont privés :
+  //  1) raw.githubusercontent.com (branche par défaut via "HEAD", pas besoin de savoir
+  //     si c'est main/master) — marche sans rien pour les dépôts publics.
+  //  2) Sinon, si un token est enregistré (⚙️ Réglages), l'API Contents authentifiée —
+  //     marche pour les dépôts privés, à condition que ce token ait accès en lecture à
+  //     CE dépôt (pas seulement à afgto79/chantiers, voir le panneau Réglages).
+  function loadReadme(repo){
+    readmeRequestId += 1;
+    const myRequestId = readmeRequestId;
+    const box = document.getElementById("readmeBox");
+
+    const paint = (state) => {
+      if(document.getElementById("readmeBox") !== box) return; // le panneau a changé entre-temps
+      if(state === "no-token"){
+        box.innerHTML = `<p class="readme-status">Dépôt privé — ajoute un token avec accès à ce dépôt (⚙️ Réglages) pour voir son README ici.</p>`;
+        return;
+      }
+      if(state == null){
+        box.innerHTML = `<p class="readme-status">Pas de README disponible.</p>`;
+        return;
+      }
+      const html = DOMPurify.sanitize(marked.parse(state));
+      box.innerHTML = html;
+    };
+
+    if(readmeCache.has(repo)){ paint(readmeCache.get(repo)); return; }
+
+    fetch(`https://raw.githubusercontent.com/${repo}/HEAD/README.md`)
+      .then(res => res.ok ? res.text() : Promise.reject(new Error(String(res.status))))
+      .then(md => {
+        readmeCache.set(repo, md);
+        if(myRequestId === readmeRequestId) paint(md);
+      })
+      .catch(() => {
+        // Public : pas de README. Privé : on n'a pas encore essayé avec le token.
+        const token = getToken();
+        if(!token){
+          readmeCache.set(repo, "no-token");
+          if(myRequestId === readmeRequestId) paint("no-token");
+          return;
+        }
+        fetch(`https://api.github.com/repos/${repo}/contents/README.md`, {
+          headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json" }
+        })
+          .then(res => res.ok ? res.json() : Promise.reject(new Error(String(res.status))))
+          .then(data => {
+            const md = decodeURIComponent(escape(atob(data.content)));
+            readmeCache.set(repo, md);
+            if(myRequestId === readmeRequestId) paint(md);
+          })
+          .catch(() => {
+            readmeCache.set(repo, null);
+            if(myRequestId === readmeRequestId) paint(null);
+          });
+      });
   }
 
   function renderAll(){ renderStatusnav(); renderList(); renderDetail(); }
