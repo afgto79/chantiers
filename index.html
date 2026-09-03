@@ -453,7 +453,7 @@
       <div class="shot-wrap">
         <button type="button" class="shot-btn" aria-label="Agrandir la capture d'écran de ${p.name}">
           <img src="screenshots/${p.id}.png" alt="Capture d'écran de ${p.name}" loading="lazy"
-               onerror="this.closest('.shot-wrap').style.display='none'">
+               onerror="handleShotError(this)">
         </button>
       </div>
       <div class="factrow">
@@ -487,6 +487,17 @@
   // Récupère le README.md du dépôt sélectionné et le rend en HTML. Mis en cache par
   // dépôt pour ne pas re-télécharger à chaque sélection. Un requestId évite d'afficher
   // un résultat périmé si l'utilisateur change de projet pendant le fetch.
+  // Capture d'écran : screenshots/<id>.png en premier, screenshots/<id>.jpg en repli
+  // (au cas où le fichier déposé est un .jpg), sinon la zone est masquée.
+  function handleShotError(img){
+    if(!img.dataset.triedJpg){
+      img.dataset.triedJpg = "1";
+      img.src = img.src.replace(/\.png(\?|$)/, ".jpg$1");
+    } else {
+      img.closest(".shot-wrap").style.display = "none";
+    }
+  }
+
   //
   // Deux chemins, car la plupart de ces dépôts sont privés :
   //  1) raw.githubusercontent.com (branche par défaut via "HEAD", pas besoin de savoir
